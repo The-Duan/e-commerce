@@ -4,7 +4,7 @@
     <view class="search-box">
       <my-search @click="gotoSearch"></my-search>
     </view>
-    
+
     <!-- 轮播图区域 -->
     <swiper :indicator-dots="true" :autoplay="true" :interval="3000" :duration="1000" :circular="true">
       <!-- 循环渲染轮播图的 item 项 -->
@@ -36,7 +36,8 @@
           </navigator>
           <!-- 右侧 4 个小图片的盒子 -->
           <view class="right-img-box">
-            <navigator class="right-img-item" v-for="(item2, i2) in item.product_list" :key="i2" v-if="i2 !== 0" :url="item2.url">
+            <navigator class="right-img-item" v-for="(item2, i2) in item.product_list" :key="i2" v-if="i2 !== 0"
+              :url="item2.url">
               <image :src="item2.image_src" mode="widthFix" :style="{width: item2.image_width + 'rpx'}"></image>
             </navigator>
           </view>
@@ -47,7 +48,12 @@
 </template>
 
 <script>
+  // 导入自己封装的 mixin 模块
+  import badgeMix from '@/mixins/tabbar-badge.js'
+
   export default {
+    // 将 badgeMix 混入到当前的页面中进行使用
+    mixins: [badgeMix],
     data() {
       return {
         // 轮播图的数据列表,默认为空数组
@@ -160,6 +166,7 @@
     display: flex;
     padding-left: 10rpx;
   }
+
   // 搜索吸顶
   .search-box {
     // 设置定位效果为“吸顶”
