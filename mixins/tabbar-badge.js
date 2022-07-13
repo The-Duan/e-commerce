@@ -4,6 +4,14 @@ import {
 
 // 导出一个 mixin 对象
 export default {
+  watch:{
+    total:{
+      handler(newVal){
+        this.setBadge()
+      },
+      immediate:true
+    }
+  },
   computed: {
     ...mapGetters('m_cart', ['total']),
   },
