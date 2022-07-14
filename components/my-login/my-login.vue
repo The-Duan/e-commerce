@@ -11,19 +11,26 @@
 </template>
 
 <script>
+  // 按需导入辅助函数
   import {
-    mapMutations
+    mapMutations,
+    mapState
   } from 'vuex'
 
   export default {
     name: "my-login",
+
     data() {
       return {
 
       };
     },
+    computed: {
+      // 调用 mapState 辅助方法，把 m_user 模块中的数据映射到当前用组件中使用
+      ...mapState('m_user', ['redirectInfo']),
+    },
     methods: {
-      ...mapMutations('m_user', ['updateUserInfo', 'updateToken']),
+      ...mapMutations('m_user', ['updateUserInfo', 'updateToken', 'updateRedirectInfo']),
       // 获取微信用户的基本信息
       getUserProfile() {
         uni.getUserProfile({
@@ -38,30 +45,47 @@
           }
         })
       },
-      // 调用登录接口，换取永久的 token
-      async getToken(info) {
-        // 调用微信登录接口
-        const [err, res] = await uni.login().catch(err => err)
-        // 判断是否 uni.login() 调用失败
-        if (err || res.errMsg !== 'login:ok') return uni.$showError('登录失败！')
+      getToken(info) {
+        this.updateToken('token')
+        // 判断 vuex 中的 redirectInfo 是否为 null
+        // 如果不为 null，则登录成功之后，需要重新导航到对应的页面
+        this.navigateBack()
+      },
+      // async getToken(info) {
+      //   // 获取code对应的值
+      //   const [err, res] = await uni.login().catch(err => err)
+      //   // 判断是否 uni.login() 调用失败
+      //   if (err || res.errMsg !== 'login:ok') return uni.$showMsg('登录失败')
+      //   // 准备参数对象
+      //   const query = {
+      //     code: res.code,
+      //     encryptedData: info.encryptedData,
+      //     iv: info.iv,
+      //     rawData: info.rawData,
+      //     signature: info.signature
+      //   }
+      //   const {
+      //     data: loginResult
+      //   } = await uni.$http.post('/api/public/v1/users/wxlogin', query)
+      //   console.log(query);
+      //   if(loginResult.meta.status !== 400) return uni.$showMsg('登录失败')
 
-        // 准备参数对象
-        const query = {
-          code: res.code,
-          encryptedData: info.encryptedData,
-          iv: info.iv,
-          rawData: info.rawData,
-          signature: info.signature
+      //   this.updateToken(loginResult.message.token)
+      // }
+      // 返回登录之前的页面
+      navigateBack() {
+        // redirectInfo 不为 null，并且导航方式为 switchTab
+        if (this.redirectInfo && this.redirectInfo.openType === 'switchTab') {
+          // 调用小程序提供的 uni.switchTab() API 进行页面的导航
+          uni.switchTab({
+            // 要导航到的页面地址
+            url: this.redirectInfo.from,
+            // 导航成功之后，把 vuex 中的 redirectInfo 对象重置为 null
+            complete: () => {
+              this.updateRedirectInfo(null)
+            }
+          })
         }
-
-        // 换取 token
-        const {
-          data: loginResult
-        } = await uni.$http.post('/api/public/v1/users/wxlogin', query)
-        if (loginResult.meta.status !== 200) return uni.$showMsg('登录失败！')
-        // uni.$showMsg('登录成功')
-        // 更新 vuex 中的 token
-        this.updateToken(loginResult.message.token)
       }
     }
   }
