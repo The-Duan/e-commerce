@@ -63,7 +63,11 @@
         }
         // 用户没有授权
         if (err && err.errMsg === 'chooseAddress:fail auth deny') {
-          this.reAuth() // 调用 this.reAuth() 方法，向用户重新发起授权申请
+          // 3. 用户没有授权
+          if (err && (err.errMsg === 'chooseAddress:fail auth deny' || err.errMsg ===
+              'chooseAddress:fail authorize no response')) {
+            this.reAuth() // 调用 this.reAuth() 方法，向用户重新发起授权申请
+          }
         }
       },
       // 调用此方法，重新发起收货地址的授权

@@ -5,6 +5,7 @@ import {
 // 导出一个 mixin 对象
 export default {
   watch:{
+    // 监听 total 值的变化
     total:{
       handler(newVal){
         this.setBadge()
